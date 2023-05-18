@@ -1,5 +1,6 @@
 package com.ideathon.breedingservice.controller;
 
+import com.ideathon.breedingservice.dto.PatientDto;
 import com.ideathon.breedingservice.model.Patient;
 import com.ideathon.breedingservice.service.CentralService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +28,15 @@ public class PatientController {
     }
 
     @GetMapping("/addPatient")
-    public Patient sendBreedingRequestToClient(@RequestParam("name") String name,
-                                               @RequestParam("speciesCode") String speciesCode,
-                                               @RequestParam("weight") String weight,
-                                               @RequestParam("sexCode") String sexCode,
-                                               @RequestParam("dateOfBirth") String dateOfBirth,
-                                               @RequestParam("breedCode") String breedCode,
-                                               @RequestParam("knownAllergies") String knownAllergies,
-                                               @RequestParam("healthConditions") String healthConditions,
-                                               @RequestParam("clientId") String clientId) throws ParseException {
+    public PatientDto sendBreedingRequestToClient(@RequestParam("name") String name,
+                                                  @RequestParam("speciesCode") String speciesCode,
+                                                  @RequestParam("weight") String weight,
+                                                  @RequestParam("sexCode") String sexCode,
+                                                  @RequestParam("dateOfBirth") String dateOfBirth,
+                                                  @RequestParam("breedCode") String breedCode,
+                                                  @RequestParam("knownAllergies") String knownAllergies,
+                                                  @RequestParam("healthConditions") String healthConditions,
+                                                  @RequestParam("clientId") String clientId) throws ParseException {
 
         DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         Date formattedDateOfBirth = formatter.parse(dateOfBirth);

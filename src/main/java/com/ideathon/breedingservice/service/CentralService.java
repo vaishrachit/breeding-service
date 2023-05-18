@@ -27,6 +27,8 @@ import javax.xml.xpath.XPathFactory;
 import com.ideathon.breedingservice.dto.ClientRatingDto;
 import com.ideathon.breedingservice.dto.ClientRatingInfo;
 import com.ideathon.breedingservice.dto.CredentialDto;
+import com.ideathon.breedingservice.dto.PatientDto;
+import com.ideathon.breedingservice.mapper.PatientMapper;
 import com.ideathon.breedingservice.model.ClientLoginInfo;
 import com.ideathon.breedingservice.model.ClientRating;
 import com.ideathon.breedingservice.model.Clients;
@@ -315,7 +317,7 @@ public class CentralService {
 		return averageRating;
 	}
 
-	public Patient savePatient(String name,
+	public PatientDto savePatient(String name,
 							   String speciesCode,
 							   String weight,
 							   String sexCode,
@@ -326,6 +328,8 @@ public class CentralService {
 							   String clientId) {
 
 		Patient patient = new Patient();
+
+		PatientDto patientDto;
 
 		try {
 
@@ -355,12 +359,14 @@ public class CentralService {
 
 			patient.setClients(Collections.singletonList(clients));
 
-			patientRepository.save(patient);
+			patient = patientRepository.save(patient);
+
+			patientDto  = PatientMapper.INSTANCE.map(patient);
 
 		} catch (Exception e) {
 			return null;
 		}
-		return patient;
+		return patientDto;
 	}
 
 	public ClientInfoDto getClientInformationFromPatient(String patientId) {
