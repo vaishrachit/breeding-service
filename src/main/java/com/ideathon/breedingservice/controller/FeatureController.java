@@ -87,10 +87,8 @@ public class FeatureController {
 
 	@PostMapping("/login")
 	public ClientDataDto loginApp(@RequestBody CredentialDto credentialDto) {
-
 		if(credentialDto.getEmail().isEmpty() || credentialDto.getPassword().isEmpty())
 			return null;
-
 		return centralService.authenticateUser(credentialDto);
 	}
 	

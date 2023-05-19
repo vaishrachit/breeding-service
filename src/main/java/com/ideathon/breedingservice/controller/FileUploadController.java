@@ -64,7 +64,7 @@ public class FileUploadController {
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            log.info("Could not determine file type.");
+            //log.info("Could not determine file type.");
         }
 
         if(contentType == null) {

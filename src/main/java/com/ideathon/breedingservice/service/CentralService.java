@@ -3,6 +3,7 @@ package com.ideathon.breedingservice.service;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -34,13 +35,20 @@ import com.ideathon.breedingservice.model.ClientRating;
 import com.ideathon.breedingservice.model.Clients;
 import com.ideathon.breedingservice.repo.ClientLoginRepository;
 import com.ideathon.breedingservice.repo.ClientRatingRepository;
+
+import org.apache.catalina.startup.UserConfig;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.w3c.dom.Document;
 
 import com.ideathon.breedingservice.dto.ClientDataDto;
@@ -55,6 +63,7 @@ import com.ideathon.breedingservice.repo.ClientRepository;
 import com.ideathon.breedingservice.repo.PatientRepository;
 import com.ideathon.breedingservice.util.IdConverter;
 import com.mongodb.client.result.UpdateResult;
+import com.sun.security.auth.UserPrincipal;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.geographiclib.Geodesic;
@@ -62,13 +71,16 @@ import net.sf.geographiclib.GeodesicData;
 
 @Component
 @Slf4j
-public class CentralService {
+public class CentralService {//extends DefaultHandshakeHandler{
 
 	private ClientRepository clientRepository;
 	private PatientRepository patientRepository;
 	private BreedingRequestRepository breedingRequestRepository;
 	private ClientRatingRepository clientRatingRepository;
 	private ClientLoginRepository clientLoginRepository;
+	
+	private String userName = null;
+	private String password = null;
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -107,11 +119,24 @@ public class CentralService {
 
 		if(!clientLoginInfo.getPassword().equals(credentialDto.getPassword()))
 			return null;
+		this.userName = credentialDto.getEmail();
+		this.password = credentialDto.getPassword();
 
 		return getClientData(credentialDto.getEmail());
 
 	}
 
+//	@Override
+//	protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler,
+//			Map<String, Object> attributes) {
+//		final String randomId = UUID.randomUUID().toString();
+//		SecurityProperties.User user = new User();
+//		user.setName(userName);
+//		user.setPassword(password);
+//	
+//		return new UserPrincipal(user.getName());
+//	}
+	
 	public ClientDataDto getClientData(String email) {
 		List<Client> clientList = clientRepository.getClientByEmail(email);
 

@@ -6,14 +6,17 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import com.ideathon.breedingservice.service.CentralService;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class Config implements WebSocketMessageBrokerConfigurer{
 
-	
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/server1").withSockJS();
+		registry.addEndpoint("/server1")
+		.setHandshakeHandler(new UserHandshakeHandler())
+		.withSockJS();
 	}
 
 	@Override
@@ -21,6 +24,5 @@ public class Config implements WebSocketMessageBrokerConfigurer{
 		registry.enableSimpleBroker("/topic");
 		registry.setApplicationDestinationPrefixes("/app");
 	}
-
 	
 }

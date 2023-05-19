@@ -2,26 +2,36 @@ package com.ideathon.breedingservice.video;
 
 
 public class Message {
-    private String name;
+	private String to;
     private String content;
+    private String from;
     
-    
-    
-	public Message(String name, String content) {
-		this.name = name;
+	public Message(String from, String content, String to) {
+		this.from = from;
+		this.to = to;
 		this.content = content;
 	}
 	
-	public String getName() {
-		return name;
+	public String getTo() {
+		return to;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setTo(String to) {
+		this.to = to;
+	}
+
+	public String getFrom() {
+		return from;
 	}
 	
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
 	public String getContent() {
 		return content;
 	}
+	
 	public void setContent(String content) {
 		this.content = content;
 	}
