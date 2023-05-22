@@ -33,7 +33,7 @@ public class ImageDataService {
                         .name(multipartFile.getOriginalFilename())
                         .imageType(multipartFile.getContentType())
                         .entityCode("TEST")
-                        .entityId(null)
+                        .patientId(null)
                         .imagePath(filePath).build());
 
         multipartFile.transferTo(new File(filePath));
@@ -52,4 +52,17 @@ public class ImageDataService {
         byte[] image = Files.readAllBytes(new File(imagePath).toPath());
         return image;
     }
+
+    public void saveImageToDB(MultipartFile multipartFile, String filePath, String patientId){
+
+        ImageData imageData = imageDataRepository.save(ImageData.builder()
+                .id(IdConverter.toStandardBinaryUUID(UUID.randomUUID()))
+                .name(multipartFile.getOriginalFilename())
+                .imageType(multipartFile.getContentType())
+                .entityCode("TEST")
+                .patientId(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)))
+                .imagePath(filePath).build());
+
+    }
+
 }

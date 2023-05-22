@@ -1,5 +1,9 @@
 package com.ideathon.breedingservice.dto;
 
+import com.ideathon.breedingservice.model.ImageData;
+
+import java.util.List;
+
 public class PatientDataDto {
 
     private String patientId;
@@ -11,6 +15,15 @@ public class PatientDataDto {
     private String healthCondition;
     private String allergies;
     private String weight;
+    private List<ImageDataDto> images;
+
+    public List<ImageDataDto> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageDataDto> images) {
+        this.images = images;
+    }
 
     public String getPatientId() {
         return patientId;

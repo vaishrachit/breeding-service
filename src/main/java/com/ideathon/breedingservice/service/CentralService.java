@@ -28,14 +28,18 @@ import javax.xml.xpath.XPathFactory;
 import com.ideathon.breedingservice.dto.ClientRatingDto;
 import com.ideathon.breedingservice.dto.ClientRatingInfo;
 import com.ideathon.breedingservice.dto.CredentialDto;
+import com.ideathon.breedingservice.dto.ImageDataDto;
 import com.ideathon.breedingservice.dto.PatientDto;
+import com.ideathon.breedingservice.mapper.ImageDataMapper;
 import com.ideathon.breedingservice.mapper.PatientMapper;
 import com.ideathon.breedingservice.model.ClientLoginInfo;
 import com.ideathon.breedingservice.model.ClientRating;
 import com.ideathon.breedingservice.model.Clients;
+import com.ideathon.breedingservice.model.ImageData;
 import com.ideathon.breedingservice.repo.ClientLoginRepository;
 import com.ideathon.breedingservice.repo.ClientRatingRepository;
 
+import com.ideathon.breedingservice.repo.ImageDataRepository;
 import org.apache.catalina.startup.UserConfig;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +82,7 @@ public class CentralService {//extends DefaultHandshakeHandler{
 	private BreedingRequestRepository breedingRequestRepository;
 	private ClientRatingRepository clientRatingRepository;
 	private ClientLoginRepository clientLoginRepository;
+	private ImageDataRepository imageDataRepository;
 	
 	private String userName = null;
 	private String password = null;
@@ -108,6 +113,11 @@ public class CentralService {//extends DefaultHandshakeHandler{
 	@Autowired
 	public void setClientLoginRepository(ClientLoginRepository clientLoginRepository) {
 		this.clientLoginRepository = clientLoginRepository;
+	}
+
+	@Autowired
+	public void setImageDataRepository(ImageDataRepository imageDataRepository) {
+		this.imageDataRepository = imageDataRepository;
 	}
 
 	public ClientDataDto authenticateUser(CredentialDto credentialDto) {
@@ -166,7 +176,6 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			// log.info("Client with email : " + email + " has no pets ");
 			return clientDataDto;
 		}
-
 		List<PatientDataDto> patientDataDtoList = new ArrayList<>();
 		for (Patient patient : pets) {
 			PatientDataDto patientDataDto = new PatientDataDto();
@@ -179,6 +188,11 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			patientDataDto.setAllergies(patient.getKnownAllergies());
 			patientDataDto.setWeight(patient.getWeight());
 			patientDataDto.setAge(getAgeFromDateOfBirth(patient.getDateOfBirth()));
+            if(patient.getId() != null){
+				List<ImageData> imageDataList = imageDataRepository.findByPatientId(patient.getId());
+				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
+				patientDataDto.setImages(imageDataDtoList);
+            }
 
 			patientDataDtoList.add(patientDataDto);
 		}
@@ -252,7 +266,11 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			patientDataDto.setSpecieCode(patient.getSpeciesCode());
 			patientDataDto.setName(patient.getName());
 			patientDataDto.setHealthCondition(patient.getHealthConditions());
-
+			if(patient.getId() != null){
+				List<ImageData> imageDataList = imageDataRepository.findByPatientId(patient.getId());
+				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
+				patientDataDto.setImages(imageDataDtoList);
+			}
 			patientDataDtoList.add(patientDataDto);
 		}
 
@@ -613,6 +631,12 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			pdd.setBreedCode(patient.getBreedCode());
 			pdd.setAllergies(patient.getKnownAllergies());
 			pdd.setWeight(patient.getWeight());
+			//adding image data
+			if(patient.getId() != null){
+				List<ImageData> imageDataList = imageDataRepository.findByPatientId(patient.getId());
+				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
+				pdd.setImages(imageDataDtoList);
+			}
 			list.add(pdd);
 			clientInfoDto.setPets(list);
 			return clientInfoDto;
@@ -703,6 +727,11 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			pdd.setSpecieCode(pets.getSpeciesCode());
 			pdd.setWeight(pets.getWeight());
 			pdd.setBreedCode(pets.getBreedCode());
+			if(pets.getId() != null){
+				List<ImageData> imageDataList = imageDataRepository.findByPatientId(pets.getId());
+				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
+				pdd.setImages(imageDataDtoList);
+			}
 			patientDataDto.add(pdd);
 		}
 		

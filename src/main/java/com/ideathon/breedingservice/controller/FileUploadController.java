@@ -2,7 +2,9 @@ package com.ideathon.breedingservice.controller;
 
 import com.ideathon.breedingservice.model.UploadFileResponse;
 import com.ideathon.breedingservice.service.FileStorageService;
+import com.ideathon.breedingservice.service.ImageDataService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,8 +31,12 @@ public class FileUploadController {
 
     private FileStorageService fileStorageService;
 
-    public FileUploadController(FileStorageService fileStorageService) {
+    private ImageDataService imageDataService;
+
+//    @Autowired
+    public FileUploadController(FileStorageService fileStorageService, ImageDataService imageDataService) {
         this.fileStorageService = fileStorageService;
+        this.imageDataService= imageDataService;
     }
 
 
@@ -43,6 +49,9 @@ public class FileUploadController {
                 .path(patientId+"/")
                 .path(fileName)
                 .toUriString();
+
+        //saving to DB
+        imageDataService.saveImageToDB(file, fileDownloadUri, patientId);
 
         return new UploadFileResponse(fileName, fileDownloadUri,
                 file.getContentType(), file.getSize());

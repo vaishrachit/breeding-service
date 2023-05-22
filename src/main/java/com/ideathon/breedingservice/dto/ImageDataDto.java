@@ -1,41 +1,19 @@
-package com.ideathon.breedingservice.model;
+package com.ideathon.breedingservice.dto;
 
 import lombok.Builder;
 import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("imagePathData")
-@Builder
-public class ImageData {
+public class ImageDataDto {
 
-    @Id
+    
     private Binary id;
     private String name;
     private String imageType;
     private String imagePath;
     private String entityCode;
-    private Binary patientId;
-
-    public Binary getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(Binary patientId) {
-        this.patientId = patientId;
-    }
-
-    public ImageData() {
-    }
-
-    public ImageData(Binary id, String name, String imageType, String imagePath, String entityCode, Binary patientId) {
-        this.id = id;
-        this.name = name;
-        this.imageType = imageType;
-        this.imagePath = imagePath;
-        this.entityCode = entityCode;
-        this.patientId = patientId;
-    }
+    private String patientId;
 
     public Binary getId() {
         return id;
@@ -76,5 +54,16 @@ public class ImageData {
     public void setEntityCode(String entityCode) {
         this.entityCode = entityCode;
     }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+    }
+
+
+
 
 }
