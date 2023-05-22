@@ -1,39 +1,19 @@
 package com.ideathon.breedingservice.video;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
-	private String to;
-    private String content;
-    private String from;
-    
-	public Message(String from, String content, String to) {
-		this.from = from;
-		this.to = to;
-		this.content = content;
-	}
-	
-	public String getTo() {
-		return to;
-	}
+	private String senderName;
+	private String receiverName;
+	private String message;
+	private String date;
 
-	public void setTo(String to) {
-		this.to = to;
-	}
-
-	public String getFrom() {
-		return from;
-	}
-	
-	public void setFrom(String from) {
-		this.from = from;
-	}
-
-	public String getContent() {
-		return content;
-	}
-	
-	public void setContent(String content) {
-		this.content = content;
-	}
-    
 }
