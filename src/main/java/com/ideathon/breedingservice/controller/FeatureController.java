@@ -70,9 +70,11 @@ public class FeatureController {
 		return centralService.getLocation(patientId, miles);
 	}
 
-	@GetMapping("/patient/clientInfo/{patientId}")
-	public ClientInfoDto getClientInformationFromPatient(@PathVariable String patientId) {
-		return centralService.getClientInformationFromPatient(patientId);
+	@GetMapping("/patient/clientInfo")
+	public ClientInfoDto getClientInformationFromPatient(@RequestParam String sourceClientKey,
+														 @RequestParam String sourcePetKey,
+														 @RequestParam String targetPetKey) {
+		return centralService.getClientInformationFromPatient(sourceClientKey, sourcePetKey, targetPetKey);
 	}
 
 	@GetMapping("/patient/recommedation/{patientId}")
