@@ -463,8 +463,6 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			else
 				clientInfoDto.setCallAuditLogs(callAuditLogs);
 
-			clientInfoDto.setCallAuditLogs(null);
-
 			return clientInfoDto;
 		}
 
