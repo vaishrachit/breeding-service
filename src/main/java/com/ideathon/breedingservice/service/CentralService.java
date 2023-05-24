@@ -422,9 +422,9 @@ public class CentralService {//extends DefaultHandshakeHandler{
 		return patientDto;
 	}
 
-	public ClientInfoDto getClientInformationFromPatient(String patientId) {
+	public ClientInfoDto getClientInformationFromPatient(String sourceClientKey, String sourcePetKey, String targetPetKey) {
 		Patient patient = patientRepository
-				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
+				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
 
 		Binary clientKey = null;
 		Client client = null;
@@ -453,6 +453,15 @@ public class CentralService {//extends DefaultHandshakeHandler{
 
 			if (client.getPhoneNumbers() != null && client.getPhoneNumbers().stream().findFirst().isPresent())
 				clientInfoDto.setAssociatedClientPhone(client.getPhoneNumbers().stream().findFirst().get().getNumber());
+
+			List<CallAuditLog> callAuditLogs = callAuditLogRepository.getExistingCallAuditLogForCriteria(IdConverter.toStandardBinaryUUID(UUID.fromString(sourceClientKey)),
+					IdConverter.toStandardBinaryUUID(UUID.fromString(sourcePetKey)), clientKey,
+					IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
+
+			if(callAuditLogs == null || callAuditLogs.isEmpty())
+				clientInfoDto.setCallAuditLogs(null);
+			else
+				clientInfoDto.setCallAuditLogs(callAuditLogs);
 
 			clientInfoDto.setCallAuditLogs(null);
 
