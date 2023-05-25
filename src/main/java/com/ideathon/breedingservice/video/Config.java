@@ -11,7 +11,6 @@ import com.ideathon.breedingservice.service.CentralService;
 @Configuration
 @EnableWebSocketMessageBroker
 public class Config implements WebSocketMessageBrokerConfigurer{
-
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
@@ -19,10 +18,9 @@ public class Config implements WebSocketMessageBrokerConfigurer{
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/chatroom","/user");
 		registry.setApplicationDestinationPrefixes("/app");
+		registry.enableSimpleBroker("/chatroom","/user");
 		registry.setUserDestinationPrefix("/user");
-
 	}
 	
 }

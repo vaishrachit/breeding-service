@@ -1,7 +1,5 @@
 package com.ideathon.breedingservice.video;
 
-import java.security.Principal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,7 +12,6 @@ public class MessageController {
 	
 	@Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-
 	
 	@MessageMapping("/message")
     @SendTo("/chatroom/public")
@@ -22,12 +19,10 @@ public class MessageController {
         return message;
     }
 
-
 	@MessageMapping("/private-message")
-	public Message getContent(@Payload Message message, final Principal principal) {
-		
+	public Message getContent(@Payload Message message) {		
         simpMessagingTemplate.convertAndSendToUser(message.getReceiverName(), "/private", message);
-
+        
 		return message;
 	}
 }
