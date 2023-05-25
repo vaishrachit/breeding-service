@@ -4,6 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -25,6 +26,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import com.ideathon.breedingservice.dto.CallAuditLogDto;
 import com.ideathon.breedingservice.dto.ClientRatingDto;
 import com.ideathon.breedingservice.dto.ClientRatingInfo;
 import com.ideathon.breedingservice.dto.CredentialDto;
@@ -32,10 +34,12 @@ import com.ideathon.breedingservice.dto.ImageDataDto;
 import com.ideathon.breedingservice.dto.PatientDto;
 import com.ideathon.breedingservice.mapper.ImageDataMapper;
 import com.ideathon.breedingservice.mapper.PatientMapper;
+import com.ideathon.breedingservice.model.CallAuditLog;
 import com.ideathon.breedingservice.model.ClientLoginInfo;
 import com.ideathon.breedingservice.model.ClientRating;
 import com.ideathon.breedingservice.model.Clients;
 import com.ideathon.breedingservice.model.ImageData;
+import com.ideathon.breedingservice.repo.CallAuditLogRepository;
 import com.ideathon.breedingservice.repo.ClientLoginRepository;
 import com.ideathon.breedingservice.repo.ClientRatingRepository;
 
@@ -83,6 +87,7 @@ public class CentralService {//extends DefaultHandshakeHandler{
 	private ClientRatingRepository clientRatingRepository;
 	private ClientLoginRepository clientLoginRepository;
 	private ImageDataRepository imageDataRepository;
+	private CallAuditLogRepository callAuditLogRepository;
 	
 	private String userName = null;
 	private String password = null;
@@ -118,6 +123,11 @@ public class CentralService {//extends DefaultHandshakeHandler{
 	@Autowired
 	public void setImageDataRepository(ImageDataRepository imageDataRepository) {
 		this.imageDataRepository = imageDataRepository;
+	}
+
+	@Autowired
+	public void setCallAuditLogRepository(CallAuditLogRepository callAuditLogRepository) {
+		this.callAuditLogRepository = callAuditLogRepository;
 	}
 
 	public ClientDataDto authenticateUser(CredentialDto credentialDto) {
@@ -412,9 +422,9 @@ public class CentralService {//extends DefaultHandshakeHandler{
 		return patientDto;
 	}
 
-	public ClientInfoDto getClientInformationFromPatient(String patientId) {
+	public ClientInfoDto getClientInformationFromPatient(String sourceClientKey, String sourcePetKey, String targetPetKey) {
 		Patient patient = patientRepository
-				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
+				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
 
 		Binary clientKey = null;
 		Client client = null;
@@ -444,10 +454,41 @@ public class CentralService {//extends DefaultHandshakeHandler{
 			if (client.getPhoneNumbers() != null && client.getPhoneNumbers().stream().findFirst().isPresent())
 				clientInfoDto.setAssociatedClientPhone(client.getPhoneNumbers().stream().findFirst().get().getNumber());
 
+			List<CallAuditLog> callAuditLogs = callAuditLogRepository.getExistingCallAuditLogForCriteria(IdConverter.toStandardBinaryUUID(UUID.fromString(sourceClientKey)),
+					IdConverter.toStandardBinaryUUID(UUID.fromString(sourcePetKey)), clientKey,
+					IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
+
+			if(callAuditLogs == null || callAuditLogs.isEmpty())
+				clientInfoDto.setCallAuditLogs(null);
+			else
+				clientInfoDto.setCallAuditLogs(callAuditLogs);
+
 			return clientInfoDto;
 		}
 
 		return null;
+	}
+
+	public boolean saveCallAuditLog(CallAuditLogDto callAuditLogDto) {
+
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		try{
+			CallAuditLog callAuditLog = new CallAuditLog();
+
+			callAuditLog.setId(IdConverter.toStandardBinaryUUID(UUID.randomUUID()));
+			callAuditLog.setSourceClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourceClientId())));
+			callAuditLog.setSourcePetId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourcePetId())));
+			callAuditLog.setTargetClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetClientId())));
+			callAuditLog.setTargetPetId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetPetId())));
+			callAuditLog.setStartDateTime(sdfDate.parse(callAuditLogDto.getStartDateTime()));
+			callAuditLog.setEndDateTime(sdfDate.parse(callAuditLogDto.getEndDateTime()));
+
+			callAuditLogRepository.save(callAuditLog);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	private String[] getLatitudeAndLongitude(Client targetClient) {

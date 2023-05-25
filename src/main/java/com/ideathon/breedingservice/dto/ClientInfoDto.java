@@ -1,6 +1,9 @@
 package com.ideathon.breedingservice.dto;
 
 import com.ideathon.breedingservice.model.Address;
+import com.ideathon.breedingservice.model.CallAuditLog;
+
+import java.util.List;
 
 public class ClientInfoDto {
 
@@ -11,6 +14,7 @@ public class ClientInfoDto {
     private Address associatedClientAddress;
     private String clientAddressLatitude;
     private String clientAddressLongitude;
+    private List<CallAuditLog> callAuditLogs;
 
     public String getAssociatedClientId() {
         return associatedClientId;
@@ -66,5 +70,13 @@ public class ClientInfoDto {
 
     public void setClientAddressLongitude(String clientAddressLongitude) {
         this.clientAddressLongitude = clientAddressLongitude;
+    }
+
+    public List<CallAuditLog> getCallAuditLogs() {
+        return callAuditLogs;
+    }
+
+    public void setCallAuditLogs(List<CallAuditLog> callAuditLogs) {
+        this.callAuditLogs = callAuditLogs;
     }
 }

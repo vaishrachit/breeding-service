@@ -2,6 +2,7 @@ package com.ideathon.breedingservice.controller;
 
 import java.util.List;
 
+import com.ideathon.breedingservice.dto.CallAuditLogDto;
 import com.ideathon.breedingservice.dto.ClientRatingInfo;
 import com.ideathon.breedingservice.dto.CredentialDto;
 import com.ideathon.breedingservice.model.Client;
@@ -69,9 +70,11 @@ public class FeatureController {
 		return centralService.getLocation(patientId, miles);
 	}
 
-	@GetMapping("/patient/clientInfo/{patientId}")
-	public ClientInfoDto getClientInformationFromPatient(@PathVariable String patientId) {
-		return centralService.getClientInformationFromPatient(patientId);
+	@GetMapping("/patient/clientInfo")
+	public ClientInfoDto getClientInformationFromPatient(@RequestParam String sourceClientKey,
+														 @RequestParam String sourcePetKey,
+														 @RequestParam String targetPetKey) {
+		return centralService.getClientInformationFromPatient(sourceClientKey, sourcePetKey, targetPetKey);
 	}
 
 	@GetMapping("/patient/recommedation/{patientId}")
@@ -115,6 +118,10 @@ public class FeatureController {
 		return centralService.getAverageRatingOfClient(clientId);
 	}
 
+	@PostMapping("/call/auditLogs/submit")
+	public Boolean submitCallAuditLog(@RequestBody CallAuditLogDto callAuditLogDto) {
+		return centralService.saveCallAuditLog(callAuditLogDto);
+	}
 
 
 	// Test Endpoint ( Not for application Use )
