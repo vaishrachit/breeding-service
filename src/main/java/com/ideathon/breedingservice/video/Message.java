@@ -11,10 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message {
+	
+	private String senderId;
+	private String receiverId;
 	private String senderName;
 	private String receiverName;
 	private String message;
 	private String date;
-    private Status status;	
-
+    private Status status;
 }

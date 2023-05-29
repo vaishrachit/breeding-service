@@ -3,7 +3,6 @@ package com.ideathon.breedingservice.service;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -26,52 +25,44 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import com.ideathon.breedingservice.dto.CallAuditLogDto;
-import com.ideathon.breedingservice.dto.ClientRatingDto;
-import com.ideathon.breedingservice.dto.ClientRatingInfo;
-import com.ideathon.breedingservice.dto.CredentialDto;
-import com.ideathon.breedingservice.dto.ImageDataDto;
-import com.ideathon.breedingservice.dto.PatientDto;
-import com.ideathon.breedingservice.mapper.ImageDataMapper;
-import com.ideathon.breedingservice.mapper.PatientMapper;
-import com.ideathon.breedingservice.model.CallAuditLog;
-import com.ideathon.breedingservice.model.ClientLoginInfo;
-import com.ideathon.breedingservice.model.ClientRating;
-import com.ideathon.breedingservice.model.Clients;
-import com.ideathon.breedingservice.model.ImageData;
-import com.ideathon.breedingservice.repo.CallAuditLogRepository;
-import com.ideathon.breedingservice.repo.ClientLoginRepository;
-import com.ideathon.breedingservice.repo.ClientRatingRepository;
-
-import com.ideathon.breedingservice.repo.ImageDataRepository;
-import org.apache.catalina.startup.UserConfig;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.w3c.dom.Document;
 
+import com.ideathon.breedingservice.dto.CallAuditLogDto;
 import com.ideathon.breedingservice.dto.ClientDataDto;
 import com.ideathon.breedingservice.dto.ClientInfoDto;
+import com.ideathon.breedingservice.dto.ClientRatingDto;
+import com.ideathon.breedingservice.dto.ClientRatingInfo;
+import com.ideathon.breedingservice.dto.CredentialDto;
+import com.ideathon.breedingservice.dto.ImageDataDto;
 import com.ideathon.breedingservice.dto.PatientDataDto;
+import com.ideathon.breedingservice.dto.PatientDto;
+import com.ideathon.breedingservice.mapper.ImageDataMapper;
+import com.ideathon.breedingservice.mapper.PatientMapper;
 import com.ideathon.breedingservice.model.Address;
+import com.ideathon.breedingservice.model.CallAuditLog;
 import com.ideathon.breedingservice.model.Client;
+import com.ideathon.breedingservice.model.ClientLoginInfo;
+import com.ideathon.breedingservice.model.ClientRating;
+import com.ideathon.breedingservice.model.Clients;
+import com.ideathon.breedingservice.model.ImageData;
 import com.ideathon.breedingservice.model.Patient;
 import com.ideathon.breedingservice.model.PetBreedingRequest;
 import com.ideathon.breedingservice.repo.BreedingRequestRepository;
+import com.ideathon.breedingservice.repo.CallAuditLogRepository;
+import com.ideathon.breedingservice.repo.ClientLoginRepository;
+import com.ideathon.breedingservice.repo.ClientRatingRepository;
 import com.ideathon.breedingservice.repo.ClientRepository;
+import com.ideathon.breedingservice.repo.ImageDataRepository;
 import com.ideathon.breedingservice.repo.PatientRepository;
 import com.ideathon.breedingservice.util.IdConverter;
 import com.mongodb.client.result.UpdateResult;
-import com.sun.security.auth.UserPrincipal;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.geographiclib.Geodesic;
@@ -79,7 +70,7 @@ import net.sf.geographiclib.GeodesicData;
 
 @Component
 @Slf4j
-public class CentralService {//extends DefaultHandshakeHandler{
+public class CentralService {
 
 	private ClientRepository clientRepository;
 	private PatientRepository patientRepository;
@@ -249,14 +240,22 @@ public class CentralService {//extends DefaultHandshakeHandler{
 		if (healthCondition != null && !healthCondition.isEmpty())
 			query.addCriteria(Criteria.where("healthConditions").is(healthCondition));
 		if (sexCode != null && !sexCode.isEmpty()) {
-			if (sexCode.equalsIgnoreCase("FEMALE"))
+			if (sexCode.equalsIgnoreCase("FEMALE")) {
 				query.addCriteria(Criteria.where("sexCode").is("MALE"));
-			else
+				query.addCriteria(Criteria.where("sexCode").is("Male"));
+				query.addCriteria(Criteria.where("sexCode").is("male"));
+			}
+			else {
 				query.addCriteria(Criteria.where("sexCode").is("FEMALE"));
+				query.addCriteria(Criteria.where("sexCode").is("Female"));
+				query.addCriteria(Criteria.where("sexCode").is("female"));
+			}
 		}
 		query.limit(200);
+		
 
 		List<Patient> listPatient = mongoTemplate.find(query, Patient.class);
+		Collections.sort(listPatient, (p,q) -> p.getCreatedDate().compareTo(q.getCreatedDate()));
 		if (weightCriteria.contains("-")) {
 			listPatient = getPatientWithWeightCriteria(listPatient, weightCriteria);
 		}
