@@ -565,9 +565,12 @@ public class CentralService {
 		List<ClientDataDto> listClientDataDto = new ArrayList<>();
 
 		Map<String, String> map = getClientsLatLong(patientId);
-		double clientLat = Double.valueOf(map.get("lat"));
-		double clientLong = Double.valueOf(map.get("long"));
-
+		double clientLat = 0;
+		double clientLong = 0;
+		if(map!=null) {
+			clientLat = Double.valueOf(map.get("lat"));
+			clientLong = Double.valueOf(map.get("long"));
+		}
 		Query query = new Query();
 		query.limit(100);
 		if (sexCode != null && !sexCode.isEmpty()) {
