@@ -241,14 +241,10 @@ public class CentralService {
 			query.addCriteria(Criteria.where("healthConditions").is(healthCondition));
 		if (sexCode != null && !sexCode.isEmpty()) {
 			if (sexCode.equalsIgnoreCase("FEMALE")) {
-				query.addCriteria(Criteria.where("sexCode").is("MALE"));
-				query.addCriteria(Criteria.where("sexCode").is("Male"));
-				query.addCriteria(Criteria.where("sexCode").is("male"));
+				query.addCriteria(Criteria.where("sexCode").regex("MALE", "i"));
 			}
 			else {
-				query.addCriteria(Criteria.where("sexCode").is("FEMALE"));
-				query.addCriteria(Criteria.where("sexCode").is("Female"));
-				query.addCriteria(Criteria.where("sexCode").is("female"));
+				query.addCriteria(Criteria.where("sexCode").regex("FEMALE","i"));
 			}
 		}
 		query.limit(200);
