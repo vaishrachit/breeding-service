@@ -685,7 +685,7 @@ public class CentralService {
 	public Map<String, String> getLatLong(String address) throws Exception {
 		Map<String, String> map = new HashMap<>();
 		String api = "https://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8")
-				+ "&key=AIzaSyDDVVVnabXlP46hKdf37_12Nd2NCpCb3rY";
+				+ "&key=AIzaSyA5_Og6E44J_7rxJ7ptlTFb8t8TPz1f5LQ";
 		URL url = new URL(api);
 		HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 		httpConnection.connect();
