@@ -251,7 +251,7 @@ public class CentralService {
 		
 
 		List<Patient> listPatient = mongoTemplate.find(query, Patient.class);
-		Collections.sort(listPatient, (p,q) -> p.getCreatedDate().compareTo(q.getCreatedDate()));
+		Collections.sort(listPatient, (p,q) -> q.getCreatedDate().compareTo(p.getCreatedDate()));
 		if (weightCriteria.contains("-")) {
 			listPatient = getPatientWithWeightCriteria(listPatient, weightCriteria);
 		}
