@@ -79,7 +79,7 @@ public class CentralService {
 	private ClientLoginRepository clientLoginRepository;
 	private ImageDataRepository imageDataRepository;
 	private CallAuditLogRepository callAuditLogRepository;
-	
+
 	private String userName = null;
 	private String password = null;
 
@@ -123,12 +123,12 @@ public class CentralService {
 
 	public ClientDataDto authenticateUser(CredentialDto credentialDto) {
 
-		if(clientLoginRepository.getClientByEmail(credentialDto.getEmail()) == null)
+		if (clientLoginRepository.getClientByEmail(credentialDto.getEmail()) == null)
 			return null;
 
 		ClientLoginInfo clientLoginInfo = clientLoginRepository.getClientByEmail(credentialDto.getEmail());
 
-		if(!clientLoginInfo.getPassword().equals(credentialDto.getPassword()))
+		if (!clientLoginInfo.getPassword().equals(credentialDto.getPassword()))
 			return null;
 		this.userName = credentialDto.getEmail();
 		this.password = credentialDto.getPassword();
@@ -147,7 +147,7 @@ public class CentralService {
 //	
 //		return new UserPrincipal(user.getName());
 //	}
-	
+
 	public ClientDataDto getClientData(String email) {
 		List<Client> clientList = clientRepository.getClientByEmail(email);
 
@@ -189,11 +189,11 @@ public class CentralService {
 			patientDataDto.setAllergies(patient.getKnownAllergies());
 			patientDataDto.setWeight(patient.getWeight());
 			patientDataDto.setAge(getAgeFromDateOfBirth(patient.getDateOfBirth()));
-            if(patient.getId() != null){
+			if (patient.getId() != null) {
 				List<ImageData> imageDataList = imageDataRepository.findByPatientId(patient.getId());
 				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
 				patientDataDto.setImages(imageDataDtoList);
-            }
+			}
 
 			patientDataDtoList.add(patientDataDto);
 		}
@@ -234,20 +234,20 @@ public class CentralService {
 		Query query = new Query();
 
 		if (breedCode != null && !breedCode.isEmpty())
-			query.addCriteria(Criteria.where("breedCode").is(breedCode));
+			query.addCriteria(Criteria.where("breedCode").is(breedCode));;
 		if (specieCode != null && !specieCode.isEmpty())
-			query.addCriteria(Criteria.where("speciesCode").is(specieCode));
+			query.addCriteria(Criteria.where("speciesCode").is(specieCode.toUpperCase()));
 		if (healthCondition != null && !healthCondition.isEmpty())
 			query.addCriteria(Criteria.where("healthConditions").is(healthCondition));
-		if (sexCode != null && !sexCode.isEmpty()) {
-			if (sexCode.equalsIgnoreCase("FEMALE")) {
-				query.addCriteria(Criteria.where("sexCode").regex("MALE", "i"));
-			}
-			else {
-				query.addCriteria(Criteria.where("sexCode").regex("FEMALE","i"));
-			}
-		}
-		query.limit(200);
+		
+		  if (sexCode != null && !sexCode.isEmpty()) { 
+			  if(sexCode.equalsIgnoreCase("FEMALE")) 
+				  query.addCriteria(Criteria.where("sexCode").is("MALE")); 
+			  else 
+				  query.addCriteria(Criteria.where("sexCode").is("FEMALE")); 
+		  }
+		 
+		  query.limit(200);
 		
 
 		List<Patient> listPatient = mongoTemplate.find(query, Patient.class);
@@ -306,14 +306,16 @@ public class CentralService {
 
 	public boolean submitRatingForClient(ClientRatingDto clientRatingDto) {
 
-		try{
+		try {
 			ClientRating clientRating = new ClientRating();
 
 			clientRating.setId(IdConverter.toStandardBinaryUUID(UUID.randomUUID()));
 			clientRating.setValue(clientRatingDto.getValue());
 			clientRating.setRatingMessage(clientRatingDto.getRatingMsg());
-			clientRating.setSourceClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientRatingDto.getSourceClientId())));
-			clientRating.setTargetClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientRatingDto.getTargetClientId())));
+			clientRating.setSourceClientId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(clientRatingDto.getSourceClientId())));
+			clientRating.setTargetClientId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(clientRatingDto.getTargetClientId())));
 
 			clientRatingRepository.save(clientRating);
 
@@ -326,14 +328,16 @@ public class CentralService {
 
 	public List<ClientRatingInfo> getAllRatingsOfClient(String clientKey) {
 
-		List<ClientRating> ratings = clientRatingRepository.getClientRatingByClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientKey)));
+		List<ClientRating> ratings = clientRatingRepository
+				.getClientRatingByClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientKey)));
 
 		List<ClientRatingInfo> transformedResponse = new ArrayList<>();
-		for(ClientRating rating : ratings) {
+		for (ClientRating rating : ratings) {
 			ClientRatingInfo clientRatingInfo = new ClientRatingInfo();
 			clientRatingInfo.setValue(rating.getValue());
 			clientRatingInfo.setRatingMsg(rating.getRatingMessage());
-			clientRatingInfo.setSourceClientId(IdConverter.fromStandardBinaryUUID(rating.getSourceClientId()).toString());
+			clientRatingInfo
+					.setSourceClientId(IdConverter.fromStandardBinaryUUID(rating.getSourceClientId()).toString());
 
 			Client client = clientRepository.getClientsByClientKey(rating.getSourceClientId()).get(0);
 
@@ -349,31 +353,25 @@ public class CentralService {
 	public Integer getAverageRatingOfClient(String clientKey) {
 
 		int averageRating = 0;
-		List<ClientRating> ratings = clientRatingRepository.getClientRatingByClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientKey)));
+		List<ClientRating> ratings = clientRatingRepository
+				.getClientRatingByClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(clientKey)));
 
-		if(ratings.size() == 0)
+		if (ratings.size() == 0)
 			return averageRating;
 
 		int sum = 0;
-		for(ClientRating clientRating : ratings)
+		for (ClientRating clientRating : ratings)
 			sum += clientRating.getValue();
 
 		double sumOfAllRating = sum;
 
-		averageRating = (int)Math.round(sumOfAllRating/ratings.size());
+		averageRating = (int) Math.round(sumOfAllRating / ratings.size());
 
 		return averageRating;
 	}
 
-	public PatientDto savePatient(String name,
-							   String speciesCode,
-							   String weight,
-							   String sexCode,
-							   Date dateOfBirth,
-							   String breedCode,
-							   String knownAllergies,
-							   String healthConditions,
-							   String clientId) {
+	public PatientDto savePatient(String name, String speciesCode, String weight, String sexCode, Date dateOfBirth,
+			String breedCode, String knownAllergies, String healthConditions, String clientId) {
 
 		Patient patient = new Patient();
 
@@ -383,9 +381,9 @@ public class CentralService {
 
 			patient.setId(IdConverter.toStandardBinaryUUID(UUID.randomUUID()));
 			patient.setName(name);
-			patient.setSpeciesCode(speciesCode);
+			patient.setSpeciesCode(speciesCode.toUpperCase());
 			patient.setWeight(weight);
-			patient.setSexCode(sexCode);
+			patient.setSexCode(sexCode.toUpperCase());
 			patient.setDateOfBirth(dateOfBirth);
 			patient.setBreedCode(breedCode);
 			patient.setKnownAllergies(knownAllergies);
@@ -409,7 +407,7 @@ public class CentralService {
 
 			patient = patientRepository.save(patient);
 
-			patientDto  = PatientMapper.INSTANCE.map(patient);
+			patientDto = PatientMapper.INSTANCE.map(patient);
 
 		} catch (Exception e) {
 			return null;
@@ -417,7 +415,8 @@ public class CentralService {
 		return patientDto;
 	}
 
-	public ClientInfoDto getClientInformationFromPatient(String sourceClientKey, String sourcePetKey, String targetPetKey) {
+	public ClientInfoDto getClientInformationFromPatient(String sourceClientKey, String sourcePetKey,
+			String targetPetKey) {
 		Patient patient = patientRepository
 				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
 
@@ -449,11 +448,12 @@ public class CentralService {
 			if (client.getPhoneNumbers() != null && client.getPhoneNumbers().stream().findFirst().isPresent())
 				clientInfoDto.setAssociatedClientPhone(client.getPhoneNumbers().stream().findFirst().get().getNumber());
 
-			List<CallAuditLog> callAuditLogs = callAuditLogRepository.getExistingCallAuditLogForCriteria(IdConverter.toStandardBinaryUUID(UUID.fromString(sourceClientKey)),
+			List<CallAuditLog> callAuditLogs = callAuditLogRepository.getExistingCallAuditLogForCriteria(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(sourceClientKey)),
 					IdConverter.toStandardBinaryUUID(UUID.fromString(sourcePetKey)), clientKey,
 					IdConverter.toStandardBinaryUUID(UUID.fromString(targetPetKey)));
 
-			if(callAuditLogs == null || callAuditLogs.isEmpty())
+			if (callAuditLogs == null || callAuditLogs.isEmpty())
 				clientInfoDto.setCallAuditLogs(null);
 			else
 				clientInfoDto.setCallAuditLogs(callAuditLogs);
@@ -468,14 +468,18 @@ public class CentralService {
 
 		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-		try{
+		try {
 			CallAuditLog callAuditLog = new CallAuditLog();
 
 			callAuditLog.setId(IdConverter.toStandardBinaryUUID(UUID.randomUUID()));
-			callAuditLog.setSourceClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourceClientId())));
-			callAuditLog.setSourcePetId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourcePetId())));
-			callAuditLog.setTargetClientId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetClientId())));
-			callAuditLog.setTargetPetId(IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetPetId())));
+			callAuditLog.setSourceClientId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourceClientId())));
+			callAuditLog.setSourcePetId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getSourcePetId())));
+			callAuditLog.setTargetClientId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetClientId())));
+			callAuditLog.setTargetPetId(
+					IdConverter.toStandardBinaryUUID(UUID.fromString(callAuditLogDto.getTargetPetId())));
 			callAuditLog.setStartDateTime(sdfDate.parse(callAuditLogDto.getStartDateTime()));
 			callAuditLog.setEndDateTime(sdfDate.parse(callAuditLogDto.getEndDateTime()));
 
@@ -513,7 +517,7 @@ public class CentralService {
 		String line1 = address.getLine1();
 		String line2 = address.getLine2();
 		String line3 = address.getLine3();
-		String city =  address.getCity();
+		String city = address.getCity();
 		String postalCode = address.getPostalCode();
 		String addressString = line1 + "+" + line2 + "+" + line3 + "+" + city + "+" + postalCode;
 		try {
@@ -555,12 +559,12 @@ public class CentralService {
 	public List<ClientDataDto> getLocation(String patientId, double miles) throws Exception {
 		Patient patient = patientRepository
 				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
-		
+
 		String sexCode = patient.getSexCode();
 		String speciesCode = patient.getSpeciesCode();
 		List<ClientDataDto> listClientDataDto = new ArrayList<>();
-		
-		Map<String,String> map = getClientsLatLong(patientId);
+
+		Map<String, String> map = getClientsLatLong(patientId);
 		double clientLat = Double.valueOf(map.get("lat"));
 		double clientLong = Double.valueOf(map.get("long"));
 
@@ -580,42 +584,41 @@ public class CentralService {
 		for (Patient pets : patientList) {
 			if (!speciesCode.equalsIgnoreCase(patient.getSpeciesCode()))
 				continue;
-			if(i==listAddress.size() || listAddress.get(i)==null ) {
+			if (i == listAddress.size() || listAddress.get(i) == null) {
 				break;
 			}
 			cdd = getClientDataDtop(speciesCode, pets.getId(), listAddress.get(i));
 			double otherClientsLat = Double.valueOf(cdd.getLatitude());
 			double otherClientsLong = Double.valueOf(cdd.getLongitude());
-			
-			GeodesicData result =
-		            Geodesic.WGS84.Inverse(clientLat, clientLong, otherClientsLat, otherClientsLong);
 
-	        double distanceInMeters = result.s12;
-	        double distanceInMiles = distanceInMeters / 1609.34;
-	        
-	        if(distanceInMiles<=miles) {
-	        	listClientDataDto.add(cdd);
-	        }
-	        i++;
-	       
-	    }
+			GeodesicData result = Geodesic.WGS84.Inverse(clientLat, clientLong, otherClientsLat, otherClientsLong);
+
+			double distanceInMeters = result.s12;
+			double distanceInMiles = distanceInMeters / 1609.34;
+
+			if (distanceInMiles <= miles) {
+				listClientDataDto.add(cdd);
+			}
+			i++;
+
+		}
 		return listClientDataDto;
 	}
 
 	private List<Address> getAllAddresses(List<Patient> patientList) {
 		List<Address> listAddress = new ArrayList<>();
 		Set<Clients> set = new HashSet<>();
-		for(Patient patient: patientList) {
+		for (Patient patient : patientList) {
 			set.addAll(patient.getClients());
 		}
 		List<Client> listClient = new ArrayList<>();
-		for(Clients clients : set) {
+		for (Clients clients : set) {
 			listClient.addAll(clientRepository.getClientsByClientKey(clients.getClientKey()));
 		}
-		for(Client client: listClient) {
+		for (Client client : listClient) {
 			listAddress.addAll(client.getAddresses());
 		}
-			
+
 		return listAddress;
 	}
 
@@ -625,7 +628,6 @@ public class CentralService {
 		Binary clientKey = null;
 		Client client = null;
 
-		
 		if (patient.getClients() != null)
 			clientKey = patient.getClients().stream().findFirst().get().getClientKey();
 
@@ -656,7 +658,6 @@ public class CentralService {
 					System.err.println("Exception occured at getClientDataDtop():" + e);
 				}
 			}
-			
 
 			pdd.setAge(getAgeFromDateOfBirth(patient.getDateOfBirth()));
 			pdd.setSpecieCode(speciesCode);
@@ -667,8 +668,8 @@ public class CentralService {
 			pdd.setBreedCode(patient.getBreedCode());
 			pdd.setAllergies(patient.getKnownAllergies());
 			pdd.setWeight(patient.getWeight());
-			//adding image data
-			if(patient.getId() != null){
+			// adding image data
+			if (patient.getId() != null) {
 				List<ImageData> imageDataList = imageDataRepository.findByPatientId(patient.getId());
 				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
 				pdd.setImages(imageDataDtoList);
@@ -681,7 +682,7 @@ public class CentralService {
 		return null;
 	}
 
-	public Map<String,String> getLatLong(String address) throws Exception {
+	public Map<String, String> getLatLong(String address) throws Exception {
 		Map<String, String> map = new HashMap<>();
 		String api = "https://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8")
 				+ "&key=AIzaSyDDVVVnabXlP46hKdf37_12Nd2NCpCb3rY";
@@ -691,7 +692,7 @@ public class CentralService {
 		int responseCode = httpConnection.getResponseCode();
 		if (responseCode == 200) {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			
+
 			Document document = builder.parse(httpConnection.getInputStream());
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
@@ -713,23 +714,25 @@ public class CentralService {
 
 	/**
 	 * Get recommended Patients
+	 * 
 	 * @param patientId
 	 * @return
 	 */
 	public List<PatientDataDto> getRecommendedInfo(String patientId) {
-		List<PetBreedingRequest> patientsFromHistory = breedingRequestRepository.findBySenderPatientId(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
+		List<PetBreedingRequest> patientsFromHistory = breedingRequestRepository
+				.findBySenderPatientId(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
 		List<Binary> patiendIdList = new ArrayList<>();
-		for(PetBreedingRequest petBreedReq: patientsFromHistory) {	
+		for (PetBreedingRequest petBreedReq : patientsFromHistory) {
 			patiendIdList.add(petBreedReq.getReceiverPatientId());
 		}
 		Set<Patient> listSearchedPatients = new HashSet<>();
-		//query.limit(200);
+		// query.limit(200);
 
-		for(Binary patientIds: patiendIdList) {
+		for (Binary patientIds : patiendIdList) {
 			Query query = new Query();
 
 			Patient patient = patientRepository.getPatientById(patientIds);
-			
+
 			int age = getAgeFromDateOfBirth(patient.getDateOfBirth());
 			query.addCriteria(Criteria.where("breedCode").is(patient.getBreedCode()));
 			query.addCriteria(Criteria.where("healthConditions").is(patient.getHealthConditions()));
@@ -737,21 +740,20 @@ public class CentralService {
 			query.addCriteria(Criteria.where("sexCode").is(patient.getSexCode()));
 			query.addCriteria(Criteria.where("_id").ne(IdConverter.fromStandardBinaryUUID(patient.getId())));
 			query.limit(100);
-			
+
 			List<Patient> patientLists = mongoTemplate.find(query, Patient.class);
-			
-			
+
 			double weight = Double.parseDouble(patient.getWeight());
-			
-			String weightRange = (weight-1)+"-"+(weight+1);
-			String ageRange = (age-1)+"-"+(age+1);
-			patientLists = getPatientWithWeightCriteria(patientLists,weightRange);
-			patientLists = getPatientsWithAgeCriteria(patientLists,ageRange);
+
+			String weightRange = (weight - 1) + "-" + (weight + 1);
+			String ageRange = (age - 1) + "-" + (age + 1);
+			patientLists = getPatientWithWeightCriteria(patientLists, weightRange);
+			patientLists = getPatientsWithAgeCriteria(patientLists, ageRange);
 			listSearchedPatients.addAll(patientLists);
 		}
-		listSearchedPatients = listSearchedPatients.stream().limit(50).collect(Collectors.toSet());	
+		listSearchedPatients = listSearchedPatients.stream().limit(50).collect(Collectors.toSet());
 		List<PatientDataDto> patientDataDto = new ArrayList<>();
-		for(Patient pets : listSearchedPatients) {
+		for (Patient pets : listSearchedPatients) {
 			PatientDataDto pdd = new PatientDataDto();
 			int age = getAgeFromDateOfBirth(pets.getDateOfBirth());
 			pdd.setAge(age);
@@ -763,20 +765,21 @@ public class CentralService {
 			pdd.setSpecieCode(pets.getSpeciesCode());
 			pdd.setWeight(pets.getWeight());
 			pdd.setBreedCode(pets.getBreedCode());
-			if(pets.getId() != null){
+			if (pets.getId() != null) {
 				List<ImageData> imageDataList = imageDataRepository.findByPatientId(pets.getId());
 				List<ImageDataDto> imageDataDtoList = ImageDataMapper.INSTANCE.map(imageDataList);
 				pdd.setImages(imageDataDtoList);
 			}
 			patientDataDto.add(pdd);
 		}
-		
-		return 	patientDataDto;
-				
+
+		return patientDataDto;
+
 	}
-	
-	private Map<String,String> getClientsLatLong(String patientId){
-		Patient patient = patientRepository.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
+
+	private Map<String, String> getClientsLatLong(String patientId) {
+		Patient patient = patientRepository
+				.getPatientById(IdConverter.toStandardBinaryUUID(UUID.fromString(patientId)));
 		Map<String, String> map = new HashMap<>();
 		Clients clients = patient.getClients().stream().findFirst().get();
 		Client client = clientRepository.getClientsByClientKey(clients.getClientKey()).stream().findFirst().get();
@@ -793,13 +796,14 @@ public class CentralService {
 			} catch (Exception e) {
 				System.err.println("Exception occured at getClientDataDtop():" + e);
 			}
-		}		
+		}
 		return map;
 	}
-	
+
 	public void updateClientAdd() {
 		Query query = new Query();
-		query.addCriteria(Criteria.where("_id").is(IdConverter.toStandardBinaryUUID(UUID.fromString("2e852d2c-455b-49f0-a887-8a3b71abb7a2"))));
+		query.addCriteria(Criteria.where("_id")
+				.is(IdConverter.toStandardBinaryUUID(UUID.fromString("2e852d2c-455b-49f0-a887-8a3b71abb7a2"))));
 		Address address = new Address();
 		address.setAddressKey(IdConverter.toStandardBinaryUUID(UUID.randomUUID()));
 		address.setAddressVerified(true);
@@ -814,12 +818,13 @@ public class CentralService {
 		address.setPhoneExtension("+22");
 		address.setPhoneItuNumber("+1");
 		address.setPostalCode("60621");
-		
-		
-		UpdateResult add = mongoTemplate.updateFirst(Query.query(
-				Criteria.where("_id")
-				.is(IdConverter.toStandardBinaryUUID(UUID.fromString("2e852d2c-455b-49f0-a887-8a3b71abb7a2")))),
-				new Update().setOnInsert("addresses.$", address), "client");		
+
+		UpdateResult add = mongoTemplate
+				.updateFirst(
+						Query.query(Criteria.where("_id")
+								.is(IdConverter.toStandardBinaryUUID(
+										UUID.fromString("2e852d2c-455b-49f0-a887-8a3b71abb7a2")))),
+						new Update().setOnInsert("addresses.$", address), "client");
 		System.out.println(add);
 	}
 }
