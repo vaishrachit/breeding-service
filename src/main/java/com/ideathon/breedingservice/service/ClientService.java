@@ -62,7 +62,7 @@ public class ClientService {
 		client.setGivenName(registerClientDto.getFirstName());
 		client.setMiddleName(registerClientDto.getLastName());
 		client.setFamilyName(registerClientDto.getLastName());
-		client.setOnline(true);
+		client.setOnline(false);
 
 		client.setDateOfBirth(null);
 		client.setCreatedDate(new Date());

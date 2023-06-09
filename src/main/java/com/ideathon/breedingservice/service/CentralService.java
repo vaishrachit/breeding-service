@@ -198,8 +198,10 @@ public class CentralService {
 			patientDataDtoList.add(patientDataDto);
 		}
 
+		targetClient.setOnline(true);
 		clientDataDto.setPets(patientDataDtoList);
-
+		
+		clientRepository.save(targetClient);
 		return clientDataDto;
 	}
 
