@@ -34,11 +34,12 @@ public class Client {
     private String originTypeCode;
     private Date createdDate;
     private Date modifiedDate;
+    private boolean isOnline;
 
     public Client() {
     }
 
-    public Client(Binary id, Integer version, String documentVersion, Binary practiceKey, String clientEmailPracticeKey, String title, String prefix, String givenName, String middleName, String familyName, Binary primaryEmailAddressKey, List<EmailAddress> emailAddresses, String preferredContactMethodCode, Binary primaryPhoneKey, Binary primaryAddressKey, List<PhoneNumber> phoneNumbers, List<Address> addresses, Boolean isActive, Boolean acceptsGenerics, Date dateOfBirth, String originTypeCode, Date createdDate, Date modifiedDate) {
+    public Client(Binary id, Integer version, String documentVersion, Binary practiceKey, String clientEmailPracticeKey, String title, String prefix, String givenName, String middleName, String familyName, Binary primaryEmailAddressKey, List<EmailAddress> emailAddresses, String preferredContactMethodCode, Binary primaryPhoneKey, Binary primaryAddressKey, List<PhoneNumber> phoneNumbers, List<Address> addresses, Boolean isActive, Boolean acceptsGenerics, Date dateOfBirth, String originTypeCode, Date createdDate, Date modifiedDate, boolean isOnline) {
         this.id = id;
         this.version = version;
         this.documentVersion = documentVersion;
@@ -62,6 +63,7 @@ public class Client {
         this.originTypeCode = originTypeCode;
         this.createdDate = createdDate;
         this.modifiedDate = modifiedDate;
+        this.isOnline= isOnline;
     }
 
     public Binary getId() {
@@ -247,4 +249,13 @@ public class Client {
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }
+
+	public boolean isOnline() {
+		return isOnline;
+	}
+
+	public void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+	}
+    
 }

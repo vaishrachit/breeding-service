@@ -434,7 +434,8 @@ public class CentralService {
 
 			clientInfoDto.setAssociatedClientId(IdConverter.fromStandardBinaryUUID(client.getId()).toString());
 			clientInfoDto.setAssociatedClientName(client.getGivenName() + " " + client.getFamilyName());
-
+			clientInfoDto.setOnline(client.isOnline());
+			
 			Address address = client.getAddresses().stream().findFirst().get();
 			clientInfoDto.setAssociatedClientAddress(address);
 			String[] latAndLong = getLatAndLongFromAddress(address);
@@ -567,7 +568,7 @@ public class CentralService {
 		Map<String, String> map = getClientsLatLong(patientId);
 		double clientLat = 0;
 		double clientLong = 0;
-		if(map!=null) {
+		if(!map.isEmpty()) {
 			clientLat = Double.valueOf(map.get("lat"));
 			clientLong = Double.valueOf(map.get("long"));
 		}

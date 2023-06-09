@@ -15,6 +15,7 @@ public class ClientInfoDto {
     private String clientAddressLatitude;
     private String clientAddressLongitude;
     private List<CallAuditLog> callAuditLogs;
+    private boolean isOnline;
 
     public String getAssociatedClientId() {
         return associatedClientId;
@@ -79,4 +80,12 @@ public class ClientInfoDto {
     public void setCallAuditLogs(List<CallAuditLog> callAuditLogs) {
         this.callAuditLogs = callAuditLogs;
     }
+
+	public boolean isOnline() {
+		return isOnline;
+	}
+
+	public void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+	}
 }
